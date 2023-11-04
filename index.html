@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>1000 Miles to Salvation</title>
+    <link rel="stylesheet" type="text/css" href="styles.css">
+</head>
+<body>
+    <div id="game-container">
+        <p id="output">The desert your Purgatory<br>The Car your Redemption<br>A cold night behind<br>And a thousand miles to Salvation.</p>
+        <input type="text" id="player-input" style="display: none;">
+        <button id="start-button" onclick="startGame()">Start</button>
+        <button id="drive-button" style="display: none;" onclick="processInput()">Drive</button>
+    </div>
+
+    <script>
+        let miles_left = 1000;
+        let fuel = Math.floor(Math.random() * 71) + 90;
+        let parts = Math.floor(Math.random() * 8) + 7;
+        let health = Math.floor(Math.random() * 11) + 90;
+        let show_sign = 1;
+        let conditions_met = true;
+        let won = 0;
+
+        function clearOutput() {
+            document.getElementById("output").innerHTML = "";
+        }
+
+        function printOutput(text) {
+            document.getElementById("output").innerHTML += text + "<br>";
+        }
+
+        function showInput() {
+            document.getElementById("player-input").style.display = "block";
+            document.getElementById("drive-button").style.display = "block";
+            document.getElementById("start-button").style.display = "none";
+        }
+
+        function startGame() {
+            clearOutput();
+            printOutput("You have " + parts + " parts, and " + fuel + " fuel. The engine is singing words of power.");
+            printOutput("Enter your choice: Outrun (O), Fire (F), Ram (R)");
+            showInput();
+        }
+
+        function processInput() {
+            const playerInput = document.getElementById("player-input").value;
+            
+            document.getElementById("player-input").value = "";
+
+            if (playerInput) {
+                encounter(playerInput);
+                if (conditions_met) {
+                    repair();
+                    drive();
+                }
+            }
+
+            if (!conditions_met) {
+                document.getElementById("drive-button").disabled = true;
+            }
+        }
+
+        function encounter(answer) {
+            clearOutput();    
+
+            printOutput("You have encountered bandits.");
+
+            if (answer && answer.toLowerCase() === "o") {
+                printOutput("Engine screaming, you take to the highway and outdrive the bandits.");
+                const lostFuel = Math.floor(Math.random() * 21) + 1;
+                fuel -= lostFuel;
+                const lostHealth = Math.floor(Math.random() * 7) + 1;
+                health -= lostHealth;
+            } else if (answer && answer.toLowerCase() === "f") {
+                printOutput("Firing your weapons, you create a fountain of blood and fuel out of the bandits' vehicles.");
+                const salvagedParts = Math.floor(Math.random() * 7) + 1;
+                parts += salvagedParts;
+                const lostHealth = Math.floor(Math.random() * 7) + 1;
+                health -= lostHealth;
+                printOutput("You salvage " + salvagedParts + " parts from the wrecks, and your car has sustained some damage.");
+            } else if (answer && answer.toLowerCase() === "r") {
+                printOutput("In a tactical decision or by wild berserking, you use dust as cover and ram a bandit's car off the road, leaving behind a smoldering wreck.");
+                const salvagedFuel = Math.floor(Math.random() * 101) + 1;
+                fuel += salvagedFuel;
+                const lostHealth = Math.floor(Math.random() * 7) + 1;
+                health -= lostHealth;
+                printOutput("You salvage " + salvagedFuel + " fuel from the wrecks, and your car has sustained some damage.");
+            } else {
+                const lostFuel = Math.floor(Math.random() * 41) + 10;
+                fuel -= lostFuel;
+                const lostParts = Math.floor(Math.random() * 10) + 2;
+                parts -= lostParts;
+                const lostHealth = Math.floor(Math.random() * 16) + 3;
+                health -= lostHealth;
+                printOutput("You missed your intended action. You outpace the pursuit on canyon roads, but have lost " + lostParts + " parts, " + lostFuel + " fuel, and have sustained some damage.");
+            }
+
+            if (fuel <= 0 || health <= 0) {
+                conditions_met = false;
+                printOutput("Game over. You have run out of fuel or your car is too damaged.");
+            } else {
+                printOutput("Enter your choice: Outrun (O), Fire (F), Ram (R)");
+            }
+        }
+
+        function repair() {
+            const repair = 100 - health;
+            if (parts < repair) {
+                health += parts;
+                parts = 0;
+            } else {
+                parts -= repair;
+                health += repair;
+            }
+
+            printOutput("You repair your car with " + parts + " parts. The car is " + health + "% operational.");
+        }
+
+        function drive() {
+            const miles_left_old = miles_left;
+            const milesLeftChange = Math.floor(Math.random() * 200) + 1;
+            miles_left -= milesLeftChange;
+
+            if (miles_left > 0) {
+                const fuelConsumption = milesLeftChange / 8;
+                fuel -= fuelConsumption;
+                printOutput("You have " + fuel + " fuel, and " + parts + " parts. There are " + miles_left + " miles left to Salvation.");
+            }
+
+            if (miles_left <= 0) {
+                win();
+            } else if (miles_left < 300 && show_sign === 1) {
+                printOutput("You pass a road sign: Welcome to Salvation, " + miles_left + " miles ahead. Population 665.");
+                show_sign = 0;
+            }
+        }
+
+        function win() {
+            conditions_met = false;
+            won = 1;
+            printOutput("You have traveled 1000 miles to Salvation. Thank you for playing. Kibertekt 2023.");
+        }
+
+        function lose() {
+            printOutput("You are stopped. Salvation still lies " + miles_left + " miles beyond your reach.");
+            const restart = prompt("Drive again (y/n)?");
+            if (restart && restart.toLowerCase() === "y") {
+                conditions_met = true;
+                miles_left = 1000;
+                fuel = Math.floor(Math.random() * 71) + 90;
+                parts = Math.floor(Math.random() * 8) + 7;
+                health = Math.floor(Math.random() * 11) + 90;
+                show_sign = 1;
+                startGame();
+            } else {
+                printOutput("Thank you for playing 1000 miles to Salvation. Kybertect 2023.");
+            }
+        }
+    </script>
+</body>
+</html>
