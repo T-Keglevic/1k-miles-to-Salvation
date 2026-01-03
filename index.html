@@ -1,161 +1,662 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>1000 Miles to Salvation</title>
-    <link rel="stylesheet" type="text/css" href="styles.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="1000 Miles">
+    <meta name="theme-color" content="#0a0604">
+    <title>1000 Miles</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        :root {
+            --crt-amber: #ffb000;
+            --crt-dark-amber: #cc8800;
+            --crt-bg: #0a0604;
+            --crt-dim: #8b6914;
+        }
+
+        body {
+            background: var(--crt-bg);
+            color: var(--crt-amber);
+            font-family: 'Courier New', monospace;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 16px;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: repeating-linear-gradient(
+                0deg,
+                transparent,
+                transparent 2px,
+                rgba(255, 176, 0, 0.03) 2px,
+                rgba(255, 176, 0, 0.03) 4px
+            );
+            pointer-events: none;
+            z-index: 1000;
+        }
+
+        .container {
+            position: relative;
+            z-index: 2;
+            width: 100%;
+            max-width: 640px;
+            padding: 16px;
+            border: 2px solid var(--crt-dark-amber);
+            background: var(--crt-bg);
+        }
+
+        .screen {
+            display: none;
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        .box {
+            border: 1px solid var(--crt-amber);
+            padding: 8px;
+            margin-bottom: 8px;
+        }
+
+        .title {
+            text-align: center;
+            font-weight: bold;
+            letter-spacing: 2px;
+            margin-bottom: 4px;
+        }
+
+        .center {
+            text-align: center;
+        }
+
+        .separator {
+            margin: 8px 0;
+            color: var(--crt-dim);
+            text-align: center;
+        }
+
+        .stat-line {
+            margin-bottom: 4px;
+        }
+
+        .btn {
+            width: 100%;
+            background: var(--crt-bg);
+            color: var(--crt-amber);
+            border: 1px solid var(--crt-amber);
+            padding: 12px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            cursor: pointer;
+            margin-bottom: 4px;
+            text-align: center;
+            transition: all 0.1s;
+        }
+
+        .btn:hover {
+            background: var(--crt-dark-amber);
+        }
+
+        .btn:active {
+            background: var(--crt-amber);
+            color: var(--crt-bg);
+        }
+
+        .btn-small {
+            width: auto;
+            display: inline-block;
+            padding: 8px 16px;
+            margin: 0 4px 4px 0;
+        }
+
+        input, select {
+            width: 100%;
+            background: var(--crt-bg);
+            color: var(--crt-amber);
+            border: 1px solid var(--crt-amber);
+            padding: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+
+        /* Remove spinner arrows from number input */
+        input[type="number"]::-webkit-inner-spin-button,
+        input[type="number"]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        
+        input[type="number"] {
+            -moz-appearance: textfield;
+            appearance: textfield;
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 4px;
+            color: var(--crt-dim);
+            font-size: 12px;
+            text-transform: uppercase;
+        }
+
+        .intro-text {
+            text-align: center;
+            margin: 16px 0;
+            line-height: 1.6;
+        }
+
+        .milestone-box {
+            border: 2px solid var(--crt-amber);
+            padding: 16px;
+            margin: 16px 0;
+        }
+
+        .milestone-title {
+            text-align: center;
+            font-size: 18px;
+            font-weight: bold;
+            letter-spacing: 3px;
+            margin-bottom: 12px;
+        }
+
+        .milestone-text {
+            text-align: center;
+            margin: 12px 0;
+            line-height: 1.6;
+        }
+
+        @media (max-width: 480px) {
+            body {
+                font-size: 13px;
+                padding: 8px;
+            }
+            
+            .container {
+                padding: 8px;
+            }
+            
+            .btn {
+                min-height: 48px;
+            }
+        }
+
+        @media (hover: none) {
+            * {
+                -webkit-user-select: none;
+                user-select: none;
+            }
+        }
+    </style>
 </head>
 <body>
-    <div id="game-container">
-        <p id="output">The desert your Purgatory<br>The Car your Redemption<br>A cold night behind<br>And a thousand miles to Salvation.</p>
-        <input type="text" id="player-input" style="display: none;">
-        <button id="start-button" onclick="startGame()">Start</button>
-        <button id="drive-button" style="display: none;" onclick="processInput()">Drive</button>
+    <div class="container">
+        <!-- Welcome Screen -->
+        <div id="welcome-screen" class="screen active">
+            <div class="box">
+                <div class="title">1000 miles to Salvation</div>
+                <div class="separator">════════════════════════════════════════</div>
+                <div class="intro-text">
+                    The desert your Purgatory,<br>
+                    the Car your Redemption.<br>
+                    A cold night behind,<br>
+                    and a thousand miles to Salvation.
+                </div>
+                <div class="separator">════════════════════════════════════════</div>
+                <button class="btn" onclick="app.begin()">[ BEGIN ]</button>
+            </div>
+        </div>
+
+        <!-- Main Screen -->
+        <div id="main-screen" class="screen">
+            <div class="box">
+                <div class="title">1000 miles to Salvation</div>
+                <div class="separator">════════════════════════════════════════</div>
+                <div class="center" style="font-size: 16px; margin-bottom: 8px;">
+                    <span id="total-miles">0.0</span> / 1000 MI
+                </div>
+                <div class="center" style="margin-bottom: 8px;">
+                    <span style="display: inline-block; width: 200px;" id="progress-bar">░░░░░░░░░░░░░░░░░░░░</span>
+                    <span id="progress-percent">0%</span>
+                </div>
+                <div class="center" style="font-size: 11px; color: var(--crt-dim); margin-bottom: 8px;">
+                    by <span id="deadline-date">---</span>
+                </div>
+                <div class="separator">────────────────────────────────────────</div>
+            </div>
+
+            <div class="box">
+                <label>Activity</label>
+                <select id="activity-type">
+                    <option value="feet">On Foot</option>
+                    <option value="wheels">Wheels</option>
+                    <option value="water">Water</option>
+                    <option value="snow">Snow</option>
+                    <option value="other">Other</option>
+                </select>
+                
+                <label>Distance</label>
+                <input type="number" id="activity-distance" step="0.01" placeholder="0.0">
+                
+                <label>Unit</label>
+                <select id="activity-unit">
+                    <option value="mi">Miles</option>
+                    <option value="km">Kilometers</option>
+                </select>
+                
+                <button class="btn" onclick="app.logActivity()">[ LOG ACTIVITY ]</button>
+            </div>
+
+            <div class="box">
+                <div id="totals-list">
+                    <div class="center" style="color: var(--crt-dim); padding: 12px;">No activities yet</div>
+                </div>
+            </div>
+
+            <div class="box">
+                <button class="btn-small" onclick="app.exportData()">[ EXPORT ]</button>
+                <button class="btn-small" onclick="document.getElementById('import-file').click()">[ IMPORT ]</button>
+                <button class="btn-small" onclick="app.reset()">[ RESET ]</button>
+                <input type="file" id="import-file" accept=".csv" onchange="app.importData(event)">
+            </div>
+        </div>
+
+        <!-- Milestone Screen -->
+        <div id="milestone-screen" class="screen">
+            <div class="milestone-box">
+                <div class="milestone-title" id="milestone-title">MILESTONE</div>
+                <div class="separator">════════════════════════════════════════</div>
+                <div class="milestone-text" id="milestone-text"></div>
+                <div class="separator">════════════════════════════════════════</div>
+                <button class="btn" onclick="app.dismissMilestone()">[ CONTINUE ]</button>
+            </div>
+        </div>
+
+        <!-- Victory Screen -->
+        <div id="victory-screen" class="screen">
+            <div class="milestone-box">
+                <div class="milestone-title">1000 miles to Salvation</div>
+                <div class="separator">════════════════════════════════════════</div>
+                <div class="milestone-text" id="victory-text"></div>
+                <div class="separator">────────────────────────────────────────</div>
+                <div id="victory-breakdown" style="margin: 12px 0;"></div>
+                <div class="separator">════════════════════════════════════════</div>
+                <button class="btn" onclick="app.exportData()">[ EXPORT DATA ]</button>
+                <button class="btn" onclick="app.newJourney()">[ NEW JOURNEY ]</button>
+            </div>
+        </div>
     </div>
 
     <script>
-        let miles_left = 1000;
-        let fuel = Math.floor(Math.random() * 71) + 90;
-        let parts = Math.floor(Math.random() * 8) + 7;
-        let health = Math.floor(Math.random() * 11) + 90;
-        let show_sign = 1;
-        let conditions_met = true;
-        let won = 0;
+        const FLAVOR = {
+            milestone_100: "One hundred miles. The first tenth behind you. You cruise, engine humming a spell of power.",
+            milestone_250: "Two hundred and fifty miles. The wasteland pilgrimage is cruel and beautiful. You're still driving.",
+            milestone_500: "Five hundred miles. The road seems endless in any direction. Push it to the limit.",
+            milestone_665: "The point of no return. A lonely, sun and sand beaten roadmark draws near: Salvation, 335 mi ahead. Population: possibly +1",
+            milestone_750: "Seven hundred and fifty miles. Three quarters done. Salvation draws closer.",
+            milestone_900: "Nine hundred miles. The final hundred awaits. Redline it.",
+            victory: "1000.<br><br>The odometer turned to the magic number.<br>Congratulations on reaching the outskirts of Salvation.<br>Rest, feast, and pack for the next leg. Maybe not alone this time."
+        };
 
-        function clearOutput() {
-            document.getElementById("output").innerHTML = "";
-        }
+        const app = {
+            data: {
+                activities: [],
+                milestones: [100, 250, 500, 665, 750, 900],
+                completed: false
+            },
 
-        function printOutput(text) {
-            document.getElementById("output").innerHTML += text + "<br>";
-        }
+            pendingMilestones: [],
 
-        function showInput() {
-            document.getElementById("player-input").style.display = "block";
-            document.getElementById("drive-button").style.display = "block";
-            document.getElementById("start-button").style.display = "none";
-        }
+            init() {
+                this.loadData();
+            },
 
-        function startGame() {
-            clearOutput();
-            printOutput("You have " + parts + " parts, and " + fuel + " fuel. The engine is singing words of power.");
-            printOutput("Enter your choice: Outrun (O), Fire (F), Ram (R)");
-            showInput();
-        }
-
-        function processInput() {
-            const playerInput = document.getElementById("player-input").value;
-            
-            document.getElementById("player-input").value = "";
-
-            if (playerInput) {
-                encounter(playerInput);
-                if (conditions_met) {
-                    repair();
-                    drive();
+            loadData() {
+                const saved = localStorage.getItem('1000miles-data');
+                if (saved) {
+                    try {
+                        const parsed = JSON.parse(saved);
+                        this.data = parsed;
+                        
+                        // If user has data, skip welcome screen
+                        if (this.data.activities && this.data.activities.length > 0) {
+                            this.showMain();
+                        }
+                    } catch (e) {
+                        console.error('Error loading data:', e);
+                    }
                 }
+            },
+
+            saveData() {
+                localStorage.setItem('1000miles-data', JSON.stringify(this.data));
+            },
+
+            showScreen(id) {
+                document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+                document.getElementById(id).classList.add('active');
+            },
+
+            begin() {
+                this.showMain();
+            },
+
+            showMain() {
+                this.showScreen('main-screen');
+                
+                // Calculate deadline (1 year from now)
+                const now = new Date();
+                const deadline = new Date(now);
+                deadline.setFullYear(deadline.getFullYear() + 1);
+                
+                const deadlineStr = deadline.toLocaleDateString('en-US', { 
+                    month: 'short', 
+                    day: 'numeric', 
+                    year: 'numeric' 
+                });
+                document.getElementById('deadline-date').textContent = deadlineStr;
+                
+                this.updateUI();
+            },
+
+            calculateTotalMiles() {
+                if (!this.data.activities || this.data.activities.length === 0) {
+                    return 0;
+                }
+                
+                return this.data.activities.reduce((sum, a) => {
+                    const miles = a.unit === 'km' ? a.distance * 0.621371 : a.distance;
+                    return sum + miles;
+                }, 0);
+            },
+
+            updateUI() {
+                const totalMiles = this.calculateTotalMiles();
+                const percent = Math.min(100, (totalMiles / 1000) * 100);
+
+                document.getElementById('total-miles').textContent = totalMiles.toFixed(1);
+                document.getElementById('progress-percent').textContent = percent.toFixed(1) + '%';
+
+                // ASCII progress bar
+                const filled = Math.floor((percent / 100) * 20);
+                const empty = 20 - filled;
+                document.getElementById('progress-bar').textContent = '█'.repeat(filled) + '░'.repeat(empty);
+
+                // Update totals by activity
+                this.updateTotals();
+
+                // Check for milestones FIRST
+                this.checkMilestones(totalMiles);
+                
+                // If we just triggered a milestone, stop here
+                if (this.pendingMilestones.length > 0 || document.getElementById('milestone-screen').classList.contains('active')) {
+                    return;
+                }
+
+                // Then check for victory
+                if (totalMiles >= 1000 && !this.data.completed) {
+                    this.victory();
+                    return;
+                }
+            },
+
+            updateTotals() {
+                const breakdown = {};
+                
+                if (this.data.activities && this.data.activities.length > 0) {
+                    this.data.activities.forEach(a => {
+                        const miles = a.unit === 'km' ? a.distance * 0.621371 : a.distance;
+                        breakdown[a.type] = (breakdown[a.type] || 0) + miles;
+                    });
+                }
+
+                const container = document.getElementById('totals-list');
+                
+                if (Object.keys(breakdown).length === 0) {
+                    container.innerHTML = '<div class="center" style="color: var(--crt-dim); padding: 12px;">No activities yet</div>';
+                    return;
+                }
+
+                container.innerHTML = Object.entries(breakdown)
+                    .sort((a, b) => b[1] - a[1])
+                    .map(([type, miles]) => `
+                        <div class="stat-line">${this.formatActivityName(type)}: ${miles.toFixed(1)} mi</div>
+                    `).join('');
+            },
+
+            logActivity() {
+                const type = document.getElementById('activity-type').value;
+                const distance = parseFloat(document.getElementById('activity-distance').value);
+                const unit = document.getElementById('activity-unit').value;
+
+                if (!distance || distance <= 0) {
+                    alert('Enter a valid distance.');
+                    return;
+                }
+
+                const activity = {
+                    id: Date.now(),
+                    date: new Date().toISOString().split('T')[0],
+                    type: type,
+                    distance: distance,
+                    unit: unit
+                };
+
+                if (!this.data.activities) {
+                    this.data.activities = [];
+                }
+
+                this.data.activities.push(activity);
+                this.data.activities.sort((a, b) => new Date(b.date) - new Date(a.date));
+                this.saveData();
+
+                // Clear input
+                document.getElementById('activity-distance').value = '';
+
+                this.updateUI();
+            },
+
+            checkMilestones(miles) {
+                if (!this.data.milestones) {
+                    this.data.milestones = [100, 250, 500, 665, 750, 900];
+                }
+
+                // Collect all passed milestones
+                while (this.data.milestones.length > 0 && miles >= this.data.milestones[0]) {
+                    this.pendingMilestones.push(this.data.milestones.shift());
+                }
+
+                // Show first milestone if any
+                if (this.pendingMilestones.length > 0) {
+                    this.saveData();
+                    this.showNextMilestone();
+                }
+            },
+
+            showNextMilestone() {
+                if (this.pendingMilestones.length === 0) return;
+
+                const milestone = this.pendingMilestones.shift();
+                const texts = {
+                    100: FLAVOR.milestone_100,
+                    250: FLAVOR.milestone_250,
+                    500: FLAVOR.milestone_500,
+                    665: FLAVOR.milestone_665,
+                    750: FLAVOR.milestone_750,
+                    900: FLAVOR.milestone_900
+                };
+
+                document.getElementById('milestone-title').textContent = `${milestone} MILES`;
+                document.getElementById('milestone-text').innerHTML = texts[milestone];
+                this.showScreen('milestone-screen');
+            },
+
+            dismissMilestone() {
+                if (this.pendingMilestones.length > 0) {
+                    this.showNextMilestone();
+                } else {
+                    const totalMiles = this.calculateTotalMiles();
+                    if (totalMiles >= 1000 && !this.data.completed) {
+                        this.victory();
+                    } else {
+                        this.showMain();
+                    }
+                }
+            },
+
+            victory() {
+                this.data.completed = true;
+                this.saveData();
+
+                document.getElementById('victory-text').innerHTML = FLAVOR.victory;
+
+                // Show breakdown
+                const breakdown = {};
+                if (this.data.activities && this.data.activities.length > 0) {
+                    this.data.activities.forEach(a => {
+                        const miles = a.unit === 'km' ? a.distance * 0.621371 : a.distance;
+                        breakdown[a.type] = (breakdown[a.type] || 0) + miles;
+                    });
+                }
+
+                const breakdownHTML = Object.entries(breakdown)
+                    .sort((a, b) => b[1] - a[1])
+                    .map(([type, miles]) => `
+                        <div class="stat-line">${this.formatActivityName(type)}: ${miles.toFixed(1)} mi</div>
+                    `).join('');
+
+                document.getElementById('victory-breakdown').innerHTML = breakdownHTML;
+                this.showScreen('victory-screen');
+            },
+
+            exportData() {
+                if (!this.data.activities || this.data.activities.length === 0) {
+                    alert('No data to export.');
+                    return;
+                }
+
+                let csv = 'Date,Activity,Distance,Unit\n';
+                this.data.activities.forEach(a => {
+                    csv += `${a.date},${a.type},${a.distance},${a.unit}\n`;
+                });
+
+                const blob = new Blob([csv], { type: 'text/csv' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `1000miles-${new Date().toISOString().split('T')[0]}.csv`;
+                a.click();
+                URL.revokeObjectURL(url);
+            },
+
+            importData(event) {
+                const file = event.target.files[0];
+                if (!file) return;
+
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    try {
+                        const csv = e.target.result;
+                        const lines = csv.split('\n').slice(1);
+                        const activities = [];
+
+                        lines.forEach(line => {
+                            if (!line.trim()) return;
+                            const [date, type, distance, unit] = line.split(',');
+                            activities.push({
+                                id: Date.now() + Math.random(),
+                                date: date.trim(),
+                                type: type.trim(),
+                                distance: parseFloat(distance.trim()),
+                                unit: unit ? unit.trim() : 'mi'
+                            });
+                        });
+
+                        if (activities.length > 0) {
+                            this.data.activities = activities;
+                            this.data.activities.sort((a, b) => new Date(b.date) - new Date(a.date));
+                            
+                            // Recalculate milestones
+                            const totalMiles = this.calculateTotalMiles();
+                            this.data.milestones = [100, 250, 500, 665, 750, 900].filter(m => m > totalMiles);
+                            this.data.completed = false;
+                            
+                            this.saveData();
+                            this.showMain();
+                            alert(`Imported ${activities.length} activities.`);
+                        }
+                    } catch (error) {
+                        alert('Error importing: ' + error.message);
+                    }
+                };
+                reader.readAsText(file);
+            },
+
+            reset() {
+                if (!confirm('Reset all data? This cannot be undone.')) return;
+
+                localStorage.removeItem('1000miles-data');
+                this.data = {
+                    activities: [],
+                    milestones: [100, 250, 500, 665, 750, 900],
+                    completed: false
+                };
+                this.pendingMilestones = [];
+                
+                this.showScreen('welcome-screen');
+            },
+
+            newJourney() {
+                if (!confirm('Start a new journey? This will reset all data.')) return;
+
+                localStorage.removeItem('1000miles-data');
+                this.data = {
+                    activities: [],
+                    milestones: [100, 250, 500, 665, 750, 900],
+                    completed: false
+                };
+                this.pendingMilestones = [];
+                
+                this.showScreen('welcome-screen');
+            },
+
+            formatActivityName(type) {
+                const names = {
+                    feet: 'ON FOOT',
+                    wheels: 'WHEELS',
+                    water: 'WATER',
+                    snow: 'SNOW',
+                    other: 'OTHER'
+                };
+                return names[type] || type.toUpperCase();
             }
+        };
 
-            if (!conditions_met) {
-                document.getElementById("drive-button").disabled = true;
-            }
-        }
-
-        function encounter(answer) {
-            clearOutput();    
-
-            printOutput("You have encountered bandits.");
-
-            if (answer && answer.toLowerCase() === "o") {
-                printOutput("Engine screaming, you take to the highway and outdrive the bandits.");
-                const lostFuel = Math.floor(Math.random() * 21) + 1;
-                fuel -= lostFuel;
-                const lostHealth = Math.floor(Math.random() * 7) + 1;
-                health -= lostHealth;
-            } else if (answer && answer.toLowerCase() === "f") {
-                printOutput("Firing your weapons, you create a fountain of blood and fuel out of the bandits' vehicles.");
-                const salvagedParts = Math.floor(Math.random() * 7) + 1;
-                parts += salvagedParts;
-                const lostHealth = Math.floor(Math.random() * 7) + 1;
-                health -= lostHealth;
-                printOutput("You salvage " + salvagedParts + " parts from the wrecks, and your car has sustained some damage.");
-            } else if (answer && answer.toLowerCase() === "r") {
-                printOutput("In a tactical decision or by wild berserking, you use dust as cover and ram a bandit's car off the road, leaving behind a smoldering wreck.");
-                const salvagedFuel = Math.floor(Math.random() * 101) + 1;
-                fuel += salvagedFuel;
-                const lostHealth = Math.floor(Math.random() * 7) + 1;
-                health -= lostHealth;
-                printOutput("You salvage " + salvagedFuel + " fuel from the wrecks, and your car has sustained some damage.");
-            } else {
-                const lostFuel = Math.floor(Math.random() * 41) + 10;
-                fuel -= lostFuel;
-                const lostParts = Math.floor(Math.random() * 10) + 2;
-                parts -= lostParts;
-                const lostHealth = Math.floor(Math.random() * 16) + 3;
-                health -= lostHealth;
-                printOutput("You missed your intended action. You outpace the pursuit on canyon roads, but have lost " + lostParts + " parts, " + lostFuel + " fuel, and have sustained some damage.");
-            }
-
-            if (fuel <= 0 || health <= 0) {
-                conditions_met = false;
-                printOutput("Game over. You have run out of fuel or your car is too damaged.");
-            } else {
-                printOutput("Enter your choice: Outrun (O), Fire (F), Ram (R)");
-            }
-        }
-
-        function repair() {
-            const repair = 100 - health;
-            if (parts < repair) {
-                health += parts;
-                parts = 0;
-            } else {
-                parts -= repair;
-                health += repair;
-            }
-
-            printOutput("You repair your car with " + parts + " parts. The car is " + health + "% operational.");
-        }
-
-        function drive() {
-            const miles_left_old = miles_left;
-            const milesLeftChange = Math.floor(Math.random() * 200) + 1;
-            miles_left -= milesLeftChange;
-
-            if (miles_left > 0) {
-                const fuelConsumption = milesLeftChange / 8;
-                fuel -= fuelConsumption;
-                printOutput("You have " + fuel + " fuel, and " + parts + " parts. There are " + miles_left + " miles left to Salvation.");
-            }
-
-            if (miles_left <= 0) {
-                win();
-            } else if (miles_left < 300 && show_sign === 1) {
-                printOutput("You pass a road sign: Welcome to Salvation, " + miles_left + " miles ahead. Population 665.");
-                show_sign = 0;
-            }
-        }
-
-        function win() {
-            conditions_met = false;
-            won = 1;
-            printOutput("You have traveled 1000 miles to Salvation. Thank you for playing. Kibertekt 2023.");
-        }
-
-        function lose() {
-            printOutput("You are stopped. Salvation still lies " + miles_left + " miles beyond your reach.");
-            const restart = prompt("Drive again (y/n)?");
-            if (restart && restart.toLowerCase() === "y") {
-                conditions_met = true;
-                miles_left = 1000;
-                fuel = Math.floor(Math.random() * 71) + 90;
-                parts = Math.floor(Math.random() * 8) + 7;
-                health = Math.floor(Math.random() * 11) + 90;
-                show_sign = 1;
-                startGame();
-            } else {
-                printOutput("Thank you for playing 1000 miles to Salvation. Kybertect 2023.");
-            }
-        }
+        window.addEventListener('DOMContentLoaded', () => app.init());
     </script>
 </body>
 </html>
